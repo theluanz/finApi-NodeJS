@@ -113,4 +113,11 @@ app.get('/statement/date', verifyIfExistsAccountCPF, (request, response) => {
   return response.json(statement).send();
 });
 
+app.get('/balance', verifyIfExistsAccountCPF, (request, response) => {
+  const { customer } = request;
+  const balance = getBalance(customer.statement);
+
+  return response.json({ balance }).send();
+});
+
 app.listen(3333);
