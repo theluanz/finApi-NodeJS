@@ -67,7 +67,6 @@ app.post('/withdraw', verifyIfExistsAccountCPF, (request, response) => {
   const { customer } = request;
 
   const balance = getBalance(customer.statement);
-  console.log(customer.statement);
 
   if (balance < amount) {
     return response.status(400).json({ error: 'Saldo insuficiente' }).send();
@@ -82,6 +81,17 @@ app.post('/withdraw', verifyIfExistsAccountCPF, (request, response) => {
 
   customer.statement.push(statementOperation);
   return response.status(201).send();
+});
+
+app.get('/statement/date', verifyIfExistsAccountCPF, (request, response) => {
+  const { customer } = request;
+  const { date } = request.query;
+  const dateFormat = new Date(date + ' 00:00');
+  const statement = customer.statement.filter(
+    (operation) => operation.created_at.toDateString() == new Date(dateFormat).toDateString(),
+  );
+
+  return response.json(statement).send();
 });
 
 app.listen(3333);
