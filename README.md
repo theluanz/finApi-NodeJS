@@ -1,4 +1,5 @@
-## FinApi - Financeira
+## FinApi
+Projeto feito para compreender os conceitos do Node e Express
 
 ---
 
