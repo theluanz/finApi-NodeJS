@@ -3,19 +3,39 @@ const { v4: uuid } = require('uuid');
 
 const app = express();
 app.use(express.json());
+
 const customers = [];
 
-app.post('/account', (req, res) => {
-  const { cpf, name } = req.body;
+// Middleware
+function verifyIfExistsAccountCPF(request, response, next) {
+  const { cpf } = request.body;
+  const customer = customers.find((customer) => customer.cpf === cpf);
+
+  if (!customer) {
+    return response.status(400).json({ error: 'Usuário não encontrado' }).send();
+  }
+
+  request.customer = customer;
+
+  return next();
+}
+
+app.post('/account', (request, response) => {
+  const { cpf, name } = request.body;
   const customerAlredyExists = customers.some((customer) => customer.cpf === cpf);
 
   if (customerAlredyExists) {
-    return res.status(400).json({ message: 'CPF já existe' }).send();
+    return response.status(400).json({ message: 'CPF já existe' }).send();
   }
 
   customers.push({ id: uuid(), cpf, name, statement: [] });
 
-  return res.status(201).send();
+  return response.status(201).send();
+});
+
+app.get('/statement', verifyIfExistsAccountCPF, (request, response) => {
+  const { customer } = request;
+  return response.json(customer.statement);
 });
 
 app.listen(3333);
